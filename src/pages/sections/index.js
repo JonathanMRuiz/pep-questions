@@ -51,7 +51,20 @@ const Sections = () => {
   //const [isChecked, setIsChecked] = useState(false);
   const [responseModal, setResponseModal] = useState([]);
 
-  const handleResponse = (e) => {};
+  const handleResponseModal = (e) => {
+    const { value, id } = e.target;
+
+    const isDuplicate = responseModal.some((q) => q.id === id);
+
+    if (!isDuplicate) {
+      setResponseModal([...responseModal, { value, id }]);
+    } else {
+      const newArray = [...responseModal];
+      const filterResponse = newArray.find((item) => item.id === id);
+      filterResponse.value = value;
+      setResponseModal(newArray);
+    }
+  };
 
   console.log(responseModal);
 
@@ -73,7 +86,11 @@ const Sections = () => {
                 {q.answerType === "OPTIONS" && (
                   <Radio.Group>
                     {q.options.map((o) => (
-                      <Radio onChange={handleResponse} value={o.code}>
+                      <Radio
+                        id={q.id}
+                        onChange={handleResponseModal}
+                        value={o.code}
+                      >
                         {o.display}
                       </Radio>
                     ))}
