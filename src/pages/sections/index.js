@@ -1,24 +1,24 @@
 import { Checkbox, Collapse, Form, Input, Radio, Select } from "antd";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { data } from "./data";
 const { Panel } = Collapse;
 const { Option } = Select;
 
-const sections = [];
-
-for (const section of data.form.sections) {
+const sections = data.form.sections.reduce((acc, section) => {
   const questionFilter = data.form.questions.filter(
     (item) => item.sectionId === section.id
   );
 
-  sections.push({
+  acc.push({
     sectionTitle: section.display,
     sectionId: section.id,
     questions: questionFilter,
     modalQuestions: data.form.modals,
   });
-}
+
+  return acc;
+}, []);
 
 // const AnswerComponent = {
 //   TEXT: buildInput,
@@ -27,31 +27,11 @@ for (const section of data.form.sections) {
 //   DROPDOWN: buildCheckbox,
 // };
 
-// const buildInput = () => {
-//   <Input />;
-// };
-// const buildRadio = ({ sections }) => {
-//   <Radio.Group>
-//     <Radio></Radio>
-//   </Radio.Group>;
-// };
-// const buildSelect = () => {
-//   <Select></Select>;
-// };
-// const buildCheckbox = () => {
-//   <Checkbox>
-//     <span></span>
-//   </Checkbox>;
-// };
-
-// console.log(AnswerComponent);
-
 const Sections = () => {
   const [form] = Form.useForm();
   //const [isChecked, setIsChecked] = useState(false);
   const [responseModal, setResponseModal] = useState([]);
-
-  const handleResponseModal = (e) => {
+  const handleResponse = (e) => {
     const { value, id } = e.target;
 
     const isDuplicate = responseModal.some((q) => q.id === id);
@@ -60,24 +40,24 @@ const Sections = () => {
       setResponseModal([...responseModal, { value, id }]);
     } else {
       const newArray = [...responseModal];
-      const filterResponse = newArray.find((item) => item.id === id);
-      filterResponse.value = value;
+      const findResponse = newArray.find((item) => item.id === id);
+      findResponse.value = value;
       setResponseModal(newArray);
     }
   };
-
-  console.log(responseModal);
 
   return (
     <Form form={form}>
       <Collapse accordion>
         {sections.map((section) => (
-          <Panel header={section.sectionTitle} key={section.sectionId}>
+          <Panel header={section.sectionTitle}>
             {section.questions.map((q) => (
-              <Form.Item label={q.question}>
-                {q.answerType === "TEXT" && <Input />}
+              <Form.Item label={q.question} key={q.id}>
+                {q.answerType === "TEXT" && (
+                  <Input id={q.id} onChange={handleResponse} />
+                )}
                 {q.answerType === "CHECK_OPTIONS" && (
-                  <Checkbox>
+                  <Checkbox id={q.id} value={q.answerCheckOption}>
                     {q.options.map((o) => (
                       <span>{o.display}</span>
                     ))}
@@ -86,20 +66,19 @@ const Sections = () => {
                 {q.answerType === "OPTIONS" && (
                   <Radio.Group>
                     {q.options.map((o) => (
-                      <Radio
-                        id={q.id}
-                        onChange={handleResponseModal}
-                        value={o.code}
-                      >
+                      <Radio id={q.id} onChange={handleResponse} value={o.code}>
                         {o.display}
                       </Radio>
                     ))}
                   </Radio.Group>
                 )}
                 {q.answerType === "DROPDOWN" && (
-                  <Select placeholder="Dropdown...">
+                  <Select placeholder='Dropdown...'>
                     {q.options.map((o) => (
-                      <Option value={o.display}></Option>
+                      <Option
+                        id={q.id}
+                        onChange={handleResponse}
+                        value={o.display}></Option>
                     ))}
                   </Select>
                 )}
