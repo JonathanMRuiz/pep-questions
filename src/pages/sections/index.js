@@ -44,7 +44,25 @@ const Sections = () => {
       findResponse.value = value;
       setResponseModal(newArray);
     }
+
+    console.log(responseModal);
   };
+
+  useEffect(() => {
+    const newArray = data.form.questions.reduce((acc, question) => {
+      acc.push({
+        id: question.id,
+        answerNumber: question.answerNumber,
+        answerOption: question.answerOption,
+        answerText: question.answerText,
+        answerDetailsText: question.answerDetailsText,
+        answerCheckOption: question.answerDetailsText,
+      });
+      return acc;
+    }, []);
+
+    setResponseModal(newArray);
+  }, []);
 
   return (
     <Form form={form}>
@@ -53,35 +71,48 @@ const Sections = () => {
           <Panel header={section.sectionTitle}>
             {section.questions.map((q) => (
               <Form.Item label={q.question} key={q.id}>
-                {q.answerType === "TEXT" && (
-                  <Input id={q.id} onChange={handleResponse} />
-                )}
-                {q.answerType === "CHECK_OPTIONS" && (
-                  <Checkbox id={q.id} value={q.answerCheckOption}>
+                {/* {q.answerType === "TEXT" && (
+                  <Input
+                    id={q.id}
+                    onChange={handleResponse}
+                    key={`${q.id}#answerDetailsText`}
+                    value={responseModal}
+                  />
+                )} */}
+                {/* {q.answerType === "CHECK_OPTIONS" && (
+                  <Checkbox id={q.id}>
                     {q.options.map((o) => (
                       <span>{o.display}</span>
                     ))}
                   </Checkbox>
-                )}
+                )} */}
                 {q.answerType === "OPTIONS" && (
-                  <Radio.Group>
-                    {q.options.map((o) => (
-                      <Radio id={q.id} onChange={handleResponse} value={o.code}>
-                        {o.display}
-                      </Radio>
-                    ))}
-                  </Radio.Group>
+                  <>
+                    <Radio.Group
+                      id={q.id}
+                      aria-label={q.question || q.caption}
+                      onChange={handleResponse}>
+                      {q.options.map((o) => (
+                        <Radio
+                          id={q.id}
+                          aria-label={`${q.question || q.caption} - ${
+                            o.display
+                          }`.toLowerCase()}
+                          value={o.code}
+                          onChange={handleResponse}>
+                          {o.display}
+                        </Radio>
+                      ))}
+                    </Radio.Group>
+                  </>
                 )}
-                {q.answerType === "DROPDOWN" && (
+                {/* {q.answerType === "DROPDOWN" && (
                   <Select placeholder='Dropdown...'>
                     {q.options.map((o) => (
-                      <Option
-                        id={q.id}
-                        onChange={handleResponse}
-                        value={o.display}></Option>
+                      <Option id={q.id} onChange={handleResponse}></Option>
                     ))}
                   </Select>
-                )}
+                )} */}
               </Form.Item>
             ))}
           </Panel>
